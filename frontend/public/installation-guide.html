@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="OSDBcortex" />
+  <title>OSDBcortex Installation Guide for Beginners</title>
+  <style>
+    /* Professional documentation styling */
+    @media print {
+      body { font-size: 10pt; }
+      pre { white-space: pre-wrap; word-wrap: break-word; }
+      h1 { page-break-before: always; }
+      h1:first-of-type { page-break-before: avoid; }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6; color: #1a1a2e;
+      margin: 0; padding: 2rem 10%; background: #fff;
+    }
+    h1 { color: #16213e; border-bottom: 3px solid #0f3460; padding-bottom: .5rem; margin-top: 2rem; font-size: 1.8rem; }
+    h2 { color: #0f3460; border-bottom: 1px solid #ddd; padding-bottom: .3rem; margin-top: 1.8rem; font-size: 1.4rem; }
+    h3 { color: #1a1a2e; margin-top: 1.5rem; font-size: 1.15rem; }
+    h4 { color: #333; margin-top: 1.2rem; font-size: 1.05rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+    th { background-color: #0f3460; color: white; font-weight: 600; }
+    tr:nth-child(even) { background-color: #f8f9fa; }
+    tr:hover { background-color: #e8f4f8; }
+    pre { background: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 6px; padding: 1rem; overflow-x: auto; font-size: .85rem; line-height: 1.4; }
+    code { font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace; font-size: .9em; }
+    p code, li code { background: #f4f4f5; padding: 2px 6px; border-radius: 4px; color: #e91e63; font-size: .88em; }
+    nav#TOC { background: #f8f9fa; border: 1px solid #e4e4e7; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+    nav#TOC > ul { list-style: none; padding-left: 0; }
+    nav#TOC li { margin: .3rem 0; }
+    nav#TOC li > ul { padding-left: 1.2rem; }
+    nav#TOC a { color: #0f3460; text-decoration: none; }
+    nav#TOC a:hover { text-decoration: underline; }
+    blockquote { border-left: 4px solid #0f3460; background: #f8f9fa; margin: 1rem 0; padding: .75rem 1rem; border-radius: 0 6px 6px 0; }
+    blockquote p { margin: .25rem 0; }
+    .tip { border-left: 4px solid #2e7d32; background: #f1f8f1; }
+    .warn { border-left: 4px solid #c62828; background: #fdf2f2; }
+    .step { background: #f8f9fa; border: 1px solid #e4e4e7; border-radius: 8px; padding: 1rem 1.25rem; margin: .75rem 0; }
+    .step-number { display: inline-block; background: #0f3460; color: #fff; border-radius: 50%; width: 1.6rem; height: 1.6rem; text-align: center; line-height: 1.6rem; font-weight: 700; margin-right: .5rem; }
+    .btn { display: inline-block; background: #0f3460; color: #fff; padding: .4rem .9rem; border-radius: 6px; text-decoration: none; font-size: .85rem; }
+    .btn:hover { background: #16213e; }
+    code .nv { color: #00695c; }
+    code .cm { color: #616161; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>OSDBcortex Installation Guide for Beginners</h1>
+  <p>This guide walks you through installing OSDBcortex step by step. It helps you pick the right installer script for your situation and then guides you through every step.</p>
+</header>
+
+<nav id="TOC">
+  <ul>
+    <li><a href="#overview">1. What you are installing</a></li>
+    <li><a href="#before">2. Before you start</a></li>
+    <li><a href="#which-script">3. Which script should I use?</a></li>
+    <li><a href="#install-sh">4. Option A: One-command install with install.sh</a>
+      <ul>
+        <li><a href="#install-sh-steps">4.1 Steps</a></li>
+        <li><a href="#install-sh-options">4.2 Useful options</a></li>
+        <li><a href="#install-sh-uninstall">4.3 Uninstalling</a></li>
+      </ul>
+    </li>
+    <li><a href="#deploy-sh">5. Option B: Guided wizard with deploy.sh</a>
+      <ul>
+        <li><a href="#path-a">5.1 Path A - Docker (easiest)</a></li>
+        <li><a href="#path-b">5.2 Path B - Native VM / systemd</a></li>
+        <li><a href="#path-c">5.3 Path C - Offline / air-gapped</a></li>
+      </ul>
+    </li>
+    <li><a href="#after">6. After installation</a></li>
+    <li><a href="#troubleshooting">7. Troubleshooting</a></li>
+    <li><a href="#notes">8. Important notes</a></li>
+  </ul>
+</nav>
+
+<h2 id="overview">1. What you are installing</h2>
+<p>OSDBcortex is a PostgreSQL monitoring and AI-assisted database administration platform. It has four parts:</p>
+<table>
+  <tr><th>Component</th><th>What it does</th></tr>
+  <tr><td>Collector</td><td>Collects metrics from PostgreSQL system views.</td></tr>
+  <tr><td>Server</td><td>The MCP API server (backend, port 8080).</td></tr>
+  <tr><td>Alerter</td><td>Monitors collected metrics and raises alerts.</td></tr>
+  <tr><td>Client</td><td>The web dashboard you open in a browser (port 3000).</td></tr>
+</table>
+<p>All components share one central PostgreSQL database. The installer scripts set up the database, the systemd services, and a reverse proxy for the web client automatically.</p>
+
+<h2 id="before">2. Before you start</h2>
+<p>You need the following:</p>
+<ul>
+  <li>A Linux server. Both installers support <strong>Ubuntu 20.04+</strong> and <strong>RHEL 8+</strong>.</li>
+  <li>A user with <code>sudo</code> access.</li>
+  <li>Internet access on the server (unless you use the offline Path C option).</li>
+  <li>A copy of the OSDBcortex repository on the server, or the pre-built offline bundle for air-gapped servers.</li>
+</ul>
+<p>To get the repository on your server:</p>
+<pre>git clone https://github.com/osdbcortex/osdbcortex.git
+cd osdbcortex</pre>
+<p>The two installers live in the <code>scripts/</code> folder.</p>
+
+<h2 id="which-script">3. Which script should I use?</h2>
+<p>Answer these three questions to choose the right script:</p>
+<table>
+  <tr><th>Your situation</th><th>Recommended script</th><th>Why</th></tr>
+  <tr>
+    <td>You want a fresh server installed with one command, and you are happy with the default layout.</td>
+    <td><code>scripts/install.sh</code></td>
+    <td>Builds everything and configures PostgreSQL, systemd, and nginx for you automatically.</td>
+  </tr>
+  <tr>
+    <td>You want to choose a deployment style: Docker, native, or offline.</td>
+    <td><code>scripts/deploy.sh</code></td>
+    <td>An interactive wizard that asks questions and lets you pick a deployment path (A, B, or C).</td>
+  </tr>
+  <tr>
+    <td>You want the same wizard but from scripts or CI, without prompts.</td>
+    <td><code>scripts/deploy-wizard.sh</code></td>
+    <td>The same engine as <code>deploy.sh</code>, with command-line flags and a <code>--non-interactive</code> mode.</td>
+  </tr>
+  <tr>
+    <td>Your server has no internet access (air-gapped).</td>
+    <td><code>deploy.sh --path C-create</code> then <code>--path C-deploy</code></td>
+    <td>Creates an offline bundle on a connected machine and installs it on the isolated one.</td>
+  </tr>
+</table>
+<p>If you are still unsure, start with <code>scripts/install.sh</code>. It is the most automated and beginner-friendly.</p>
+
+<h2 id="install-sh">4. Option A: One-command install with install.sh</h2>
+<p>The <code>install.sh</code> script installs OSDBcortex on a bare server. It detects the operating system, installs Go, Node.js, nginx, and the build tools if they are missing, then builds all components and starts the services.</p>
+
+<h3 id="install-sh-steps">4.1 Steps</h3>
+<div class="step">
+  <span class="step-number">1</span> Clone the repository and enter the <code>scripts/</code> directory.
+  <pre>git clone https://github.com/osdbcortex/osdbcortex.git
+cd osdbcortex/scripts</pre>
+</div>
+<div class="step">
+  <span class="step-number">2</span> Run the installer as root with the interactive prompt.
+  <pre>sudo ./install.sh</pre>
+  <p>The script asks you for a PostgreSQL password and then does everything else on its own. Installation takes several minutes because it compiles from source.</p>
+</div>
+<div class="step">
+  <span class="step-number">3</span> Wait for the final <em>Installation Complete</em> message, then continue to <a href="#after">After installation</a>.</div>
+
+<p>If you prefer to supply values up front, pass them as flags:</p>
+<pre>sudo ./install.sh \
+  --pg-database osdbcortex \
+  --pg-user osdbcortex \
+  --pg-password 'YourStrongPassword' \
+  --server-port 8080 \
+  --client-port 3000</pre>
+
+<h3 id="install-sh-options">4.2 Useful options</h3>
+<table>
+  <tr><th>Option</th><th>What it does</th><th>Default</th></tr>
+  <tr><td><code>--repo-dir DIR</code></td><td>Source repository path.</td><td>Auto-detected</td></tr>
+  <tr><td><code>--install-dir DIR</code></td><td>Installation base directory.</td><td><code>/opt/osdbcortex</code></td></tr>
+  <tr><td><code>--config-dir DIR</code></td><td>Configuration files directory.</td><td><code>/etc/osdbcortex</code></td></tr>
+  <tr><td><code>--data-dir DIR</code></td><td>Persistent data directory.</td><td><code>/var/lib/osdbcortex</code></td></tr>
+  <tr><td><code>--log-dir DIR</code></td><td>Log files directory.</td><td><code>/var/log/osdbcortex</code></td></tr>
+  <tr><td><code>--pg-host HOST</code></td><td>PostgreSQL host.</td><td><code>localhost</code></td></tr>
+  <tr><td><code>--pg-port PORT</code></td><td>PostgreSQL port.</td><td><code>5432</code></td></tr>
+  <tr><td><code>--pg-database DB</code></td><td>PostgreSQL database name.</td><td><code>osdbcortex</code></td></tr>
+  <tr><td><code>--pg-user USER</code></td><td>PostgreSQL application user.</td><td><code>osdbcortex</code></td></tr>
+  <tr><td><code>--pg-password PASS</code></td><td>PostgreSQL password.</td><td>Prompted</td></tr>
+  <tr><td><code>--server-port PORT</code></td><td>Server listen port.</td><td><code>8080</code></td></tr>
+  <tr><td><code>--client-port PORT</code></td><td>Web client port.</td><td><code>3000</code></td></tr>
+  <tr><td><code>--skip-build</code></td><td>Skip compilation and use pre-built binaries.</td><td>Off</td></tr>
+  <tr><td><code>--skip-client</code></td><td>Skip the client build and nginx setup.</td><td>Off</td></tr>
+  <tr><td><code>--skip-postgres-setup</code></td><td>Skip PostgreSQL schema setup.</td><td>Off</td></tr>
+  <tr><td><code>--regenerate-secrets</code></td><td>Overwrite existing secret files.</td><td>Off</td></tr>
+  <tr><td><code>--dry-run</code></td><td>Print actions without making any changes.</td><td>Off</td></tr>
+  <tr><td><code>--help</code></td><td>Show the full help message.</td><td>-</td></tr>
+</table>
+<p>Use <code>--dry-run</code> first if you want to preview everything the script will do.</p>
+
+<h3 id="install-sh-uninstall">4.3 Uninstalling</h3>
+<p>To remove everything that <code>install.sh</code> created:</p>
+<pre>sudo ./install.sh --uninstall</pre>
+<p>The script stops and removes the services, configuration, and the system user. It does not drop the PostgreSQL database by default; the script tells you the command to drop it if you want.</p>
+
+<h2 id="deploy-sh">5. Option B: Guided wizard with deploy.sh</h2>
+<p>The <code>deploy.sh</code> wizard walks you through the installation with questions. It supports three deployment paths:</p>
+<table>
+  <tr><th>Path</th><th>Name</th><th>Best for</th></tr>
+  <tr><td><code>A</code></td><td>Docker Compose (online)</td><td>The quickest setup; everything runs in containers.</td></tr>
+  <tr><td><code>B</code></td><td>Direct VM / systemd</td><td>Native binaries installed directly on the host.</td></tr>
+  <tr><td><code>C</code></td><td>Air-gapped / offline</td><td>Servers with no internet access.</td></tr>
+</table>
+
+<h3 id="path-a">5.1 Path A - Docker (easiest)</h3>
+<p>Path A deploys all components with Docker Compose. It needs Docker and Docker Compose v2 installed.</p>
+<div class="step">
+  <span class="step-number">1</span> Start the wizard and choose <code>A</code> when asked, or pass it directly.
+  <pre>bash scripts/deploy.sh --path A</pre>
+</div>
+<div class="step">
+  <span class="step-number">2</span> Follow the prompts. You will be asked for a PostgreSQL password. You can also export it first:
+  <pre>export POSTGRES_PASSWORD='YourStrongPassword'
+bash scripts/deploy.sh --path A --non-interactive --install-prereqs auto</pre>
+</div>
+<p>After it finishes, the client is available at <code>http://&lt;server-ip&gt;:3000</code> and the server API at <code>http://&lt;server-ip&gt;:8080</code>.</p>
+
+<h3 id="path-b">5.2 Path B - Native VM / systemd</h3>
+<p>Path B installs native Go binaries and the web client directly on the host, creates a dedicated service user, registers systemd units, and optionally configures nginx.</p>
+<div class="step">
+  <span class="step-number">1</span> Run the wizard and choose <code>B</code>.
+  <pre>bash scripts/deploy.sh --path B</pre>
+</div>
+<div class="step">
+  <span class="step-number">2</span> Answer the prompts about PostgreSQL, ports, nginx, and systemd. For an unattended install use the wizard variant:
+  <pre>bash scripts/deploy-wizard.sh --path B --non-interactive \
+  --postgres-password 'YourStrongPassword' \
+  --configure-postgres yes \
+  --install-nginx yes</pre>
+</div>
+<p>Binaries go to <code>/opt/osdbcortex/bin</code>, configuration to <code>/etc/osdbcortex</code>, and the services run as the <code>osdbcortex</code> user.</p>
+
+<h3 id="path-c">5.3 Path C - Offline / air-gapped</h3>
+<p>Path C has two phases: create the bundle on a machine with internet, then deploy it on the isolated server.</p>
+<div class="step">
+  <span class="step-number">1</span> On a <strong>connected</strong> machine, create the offline bundle.
+  <pre>bash scripts/deploy.sh --path C-create</pre>
+  <p>Or with the wizard:</p>
+  <pre>bash scripts/deploy-wizard.sh --path C --offline-action create --non-interactive \
+  --client-source dist</pre>
+  <p>This produces a <code>.tar.gz</code> archive containing the binaries, client, configuration templates, and systemd units.</p>
+</div>
+<div class="step">
+  <span class="step-number">2</span> Copy the bundle archive to the isolated server, for example with <code>scp</code> or a USB drive.</div>
+<div class="step">
+  <span class="step-number">3</span> On the <strong>isolated</strong> server, deploy the bundle.
+  <pre>bash scripts/deploy.sh --path C-deploy</pre>
+  <p>Or with the wizard:</p>
+  <pre>bash scripts/deploy-wizard.sh --path C --offline-action deploy --non-interactive \
+  --bundle-archive /tmp/osdbcortex-offline-bundle.tar.gz \
+  --postgres-password 'YourStrongPassword'</pre>
+</div>
+<p>The deploy step extracts the bundle, installs the binaries and services, and prepares the PostgreSQL role and database.</p>
+
+<h2 id="after">6. After installation</h2>
+<p>Once the installer finishes, verify the services are running:</p>
+<pre>systemctl status osdbcortex-collector osdbcortex-server osdbcortex-alerter</pre>
+<p>Then open the web client in your browser:</p>
+<table>
+  <tr><th>Service</th><th>Address</th><th>Port</th></tr>
+  <tr><td>Web client (dashboard)</td><td>http://&lt;server-ip&gt;</td><td>3000</td></tr>
+  <tr><td>Server API</td><td>http://&lt;server-ip&gt;</td><td>8080</td></tr>
+  <tr><td>PostgreSQL</td><td>localhost</td><td>5432</td></tr>
+</table>
+<p>Useful commands for day-to-day operation:</p>
+<pre># View logs
+sudo journalctl -u osdbcortex-server -f
+sudo journalctl -u osdbcortex-collector -f
+sudo journalctl -u osdbcortex-alerter -f
+
+# Restart a service
+sudo systemctl restart osdbcortex-server</pre>
+
+<h2 id="troubleshooting">7. Troubleshooting</h2>
+<table>
+  <tr><th>Problem</th><th>Fix</th></tr>
+  <tr>
+    <td><code>cp: cannot stat '...systemd/osdbcortex-collector.service'</code></td>
+    <td>Your offline bundle was created by an older version of <code>deploy.sh</code> that named the units <code>osdbcortex-*.service</code>. Update <code>deploy.sh</code> and re-create the bundle, or re-run the deploy step with the fixed script.</td>
+  </tr>
+  <tr>
+    <td><code>docker: command not found</code> (Path A)</td>
+    <td>Install Docker, then re-run with <code>--install-prereqs auto</code>.</td>
+  </tr>
+  <tr>
+    <td><code>PostgreSQL connection refused</code></td>
+    <td>Ensure PostgreSQL is running: <code>sudo systemctl start postgresql</code>, and that the <code>osdbcortex</code> role and database exist.</td>
+  </tr>
+  <tr>
+    <td>Client page does not load</td>
+    <td>Check nginx: <code>sudo systemctl status nginx</code> and the port in the configuration.</td>
+  </tr>
+  <tr>
+    <td>A service keeps restarting</td>
+    <td>Check its log: <code>sudo journalctl -u osdbcortex-server -f</code>. A missing password file or wrong datastore credentials is the usual cause.</td>
+  </tr>
+  <tr>
+    <td>You are unsure what the script will do</td>
+    <td>Run it with <code>--dry-run</code> first. Nothing is changed.</td>
+  </tr>
+</table>
+
+<h2 id="notes">8. Important notes</h2>
+<blockquote class="tip">
+  <p><strong>Names are case-sensitive.</strong> Linux usernames and PostgreSQL roles and database names are case-sensitive. The deployment scripts use the lowercase name <code>osdbcortex</code> for the service user, PostgreSQL role, and database. If your system already has an uppercase <code>osdbcortex</code> user or role from a previous attempt, the scripts will not be able to reuse it; remove or rename it first.</p>
+</blockquote>
+<blockquote class="warn">
+  <p><strong>Offline bundles must match the deploy script.</strong> The Path C bundle and the deploy step must come from the same version of the scripts. Mixing versions can cause missing files or case mismatches in systemd unit names.</p>
+</blockquote>
+<blockquote>
+  <p>Always use a strong, unique password for the PostgreSQL role. The deployment scripts store it in a root-owned password file, not inside the YAML configuration.</p>
+</blockquote>
+
+<footer>
+  <p>For more information, visit <a href="https://docs.osdbcortex.com">docs.osdbcortex.com</a>.</p>
+  <p>This project is licensed under the <a href="https://github.com/osdbcortex/osdbcortex/blob/main/LICENSE.md">PostgreSQL License</a>.</p>
+</footer>
+</body>
+</html>

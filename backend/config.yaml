@@ -1,0 +1,56 @@
+odoo:
+  url: "https://hrms.opensource-db.com"
+  db: "openhrms18"
+  user: "support@opensource-db.com"
+  password: "fea092ed9e8fcd7473dfe425cf02f8654c7d59b1"
+
+xwiki:
+  base_url: "https://kb.opensource-db.com"
+  wiki: "xwiki"
+  space: "Projects"
+  user: "SSP"
+  password: "W!kiP@ssw0rd"
+
+llm:
+  provider: "ollama"  # selects which service under `services` is active
+  services:
+    digital_ocean:
+      api_url: "https://inference.do-ai.run/v1/chat/completions"
+      model: "openai-gpt-oss-120b"
+      api_key: "sk-da-vfhKFnt7TlYaHttwTEsaZfmh7da6uCIPcoSfGDnkOfmppSCIJS3rPyLN_q"
+      max_tokens: 2000
+    ollama:
+      api_url: "http://192.168.21.245:11434/v1/chat/completions"
+      model: "gemma4:latest"
+      api_key: ""
+      max_tokens: 2000
+
+neurondb:
+  url: "http://localhost:8000/documents"
+  api_key: "neurondb-api-key"
+
+report:
+  excluded_users:
+    - "Sivasankar Prasad"
+    - "Shiv Shankar Sastry V"
+    - "Hari Kiran P"
+    - "Jeswita Nadimpalli"
+    - "Administrator"
+    - "Kalyani M"
+    - "Tirumala Dasari"
+
+smtp:
+  host: "smtp.gmail.com"
+  port: 587
+  username: "support@opensource-db.com"
+  password: "zhfvctgiwdgnaebq"
+  use_tls: true
+
+alerts:
+  enabled: true
+  email:
+    enabled: true
+    to:
+      - "sivasankar@opensource-db.com"
+      - "vadapallivaishnavi1@gmail.com"
+

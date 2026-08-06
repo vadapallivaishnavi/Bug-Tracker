@@ -1,0 +1,17 @@
+.analytics {
+  padding: 2rem 2.5rem;
+  max-width: none;
+  margin: 0 auto;
+}
+
+.analytics h1 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.analytics-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
